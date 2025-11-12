@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tâches du Stream</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="employee-dashboard-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <h2 class="navbar-title" id="streamTitle">Tâches du Stream</h2>
+                <div class="nav-right">
+                    <span id="userName" class="user-name"></span>
+                    <span id="userDepartment" class="department-badge"></span>
+                    <button id="logoutBtn" class="btn btn-secondary">Déconnexion</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="dashboard-header">
+                <button onclick="window.history.back()" class="btn btn-secondary">← Retour</button>
+                <button id="addTaskBtn" class="btn btn-primary">+ Ajouter une Tâche</button>
+            </div>
+
+            <!-- Add Task Form -->
+            <div id="taskForm" class="card" style="display: none;">
+                <h3>Nouvelle Tâche</h3>
+                <form id="newTaskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Titre de la tâche</label>
+                        <input type="text" id="taskTitle" placeholder="Entrez le titre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" rows="3" placeholder="Décrivez la tâche" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStartDate">Date de début</label>
+                        <input type="date" id="taskStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEndDate">Date de fin</label>
+                        <input type="date" id="taskEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStatus">Statut</label>
+                        <select id="taskStatus" required>
+                            <option value="En cours">En cours</option>
+                            <option value="Terminé">Terminé</option>
+                            <option value="En attente">En attente</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Ajouter la tâche</button>
+                        <button type="button" id="cancelTaskBtn" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tasks Table -->
+            <div class="table-responsive">
+                <table class="tasks-table" id="tasksTable">
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th>Description</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                        <!-- Tasks will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-task-close">&times;</span>
+            <h3>Modifier la Tâche</h3>
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label for="editTaskTitle">Titre de la tâche</label>
+                    <input type="text" id="editTaskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskDescription">Description</label>
+                    <textarea id="editTaskDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskStartDate">Date de début</label>
+                    <input type="date" id="editTaskStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskEndDate">Date de fin</label>
+                    <input type="date" id="editTaskEndDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskStatus">Statut</label>
+                    <select id="editTaskStatus" required>
+                        <option value="En cours">En cours</option>
+                        <option value="Terminé">Terminé</option>
+                        <option value="En attente">En attente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskNotes">Notes supplémentaires</label>
+                    <textarea id="editTaskNotes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.closeEditTaskModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Removed stream-tasks.js since all code is now consolidated in app.js -->
+    <!-- Only load app.js which contains all the functionality -->
+    <script src="app.js"></script>
+</body>
+</html>

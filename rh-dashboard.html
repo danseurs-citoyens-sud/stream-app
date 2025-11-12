@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord RH</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="hr-dashboard-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar navbar-hr">
+            <div class="navbar-content">
+                <div class="navbar-left">
+                    <h2 class="navbar-title">Tableau de Bord RH</h2>
+                </div>
+                <div class="nav-right">
+                    <span id="hrUserName" class="user-name"></span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hr-dashboard-container">
+            <!-- Sidebar -->
+            <aside class="hr-sidebar">
+                <div class="sidebar-header">
+                    <h3>Menu</h3>
+                </div>
+                <div class="sidebar-menu">
+                    <div class="sidebar-item active" onclick="showHRPage('dashboardPage')">
+                        Dashboard
+                    </div>
+                    <!-- Removed emoji from user management menu -->
+                    <div class="sidebar-item" onclick="showHRPage('usersManagementPage')">
+                        Gestion des Utilisateurs
+                    </div>
+                </div>
+
+                <div class="sidebar-header">
+                    <h3>Départements</h3>
+                </div>
+                <div id="departmentsSidebar" class="departments-list"></div>
+
+                <div class="sidebar-footer">
+                    <button id="hrLogoutBtn" class="btn btn-logout">Déconnexion</button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="hr-main-content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="hr-page active">
+                    <div class="page-container">
+                        <h2 class="page-title">Tableau de Bord</h2>
+                        <div id="statsContainer" class="stats-grid"></div>
+                        <div class="charts-container">
+                            <div class="chart-card">
+                                <h3>Tâches par Statut</h3>
+                                <canvas id="tasksStatusChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="chart-card">
+                                <h3>Employés par Département</h3>
+                                <canvas id="employeesByDepartmentChart" width="400" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Added user management page -->
+                <!-- User Management Page -->
+                <div id="usersManagementPage" class="hr-page" style="display: none;">
+                    <div class="page-container">
+                        <div class="users-management-header">
+                            <h2 class="page-title">Gestion des Utilisateurs</h2>
+                            <button class="btn btn-primary" onclick="openCreateUserModal()">+ Créer un Utilisateur</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Département</th>
+                                        <th>Rôle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Employees Page -->
+                <div id="departmentPage" class="hr-page" style="display: none;">
+                    <div class="page-container">
+                        <div class="back-button-container">
+                            <button class="back-btn" onclick="backToDashboard()">← Retour</button>
+                        </div>
+                        <h2 id="departmentTitle" class="page-title">Employés du département</h2>
+                        <div class="table-responsive">
+                            <table class="employees-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Nombre de Streams</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Details Page -->
+                <div id="employeeDetailsPage" class="hr-page" style="display: none;">
+                    <div class="page-container">
+                        <div class="back-button-container">
+                            <button class="back-btn" onclick="backToDashboard()">← Retour</button>
+                        </div>
+                        <h2 id="employeeDetailsTitle" class="page-title">Détails de l'Employé</h2>
+                        <div id="employeeStreamsContainer" class="employee-streams-container"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Create/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserModal()">&times;</span>
+            <h3 id="userModalTitle">Créer un Utilisateur</h3>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label for="userName">Nom complet</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Mot de passe</label>
+                    <input type="password" id="userPassword" id="userPasswordField" required>
+                    <small id="passwordNote" style="display: none; color: #666;">Laissez vide pour garder le mot de passe actuel</small>
+                </div>
+                <div class="form-group">
+                    <label for="userDepartment">Département</label>
+                    <select id="userDepartment" required>
+                        <option value="RH">Ressources Humaines</option>
+                        <option value="IT">Informatique</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Com">Com</option>
+                        <option value="Logistique">Logistique</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Rôle</label>
+                    <select id="userRole" required>
+                        <option value="employee">Employé</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Application JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tâches du Stream - Détails Complets</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="employee-dashboard-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <h2 class="navbar-title" id="streamTitle">Détails Complets du Stream</h2>
+                <div class="nav-right">
+                    <span id="userName" class="user-name"></span>
+                    <span id="userDepartment" class="department-badge"></span>
+                    <button id="logoutBtn" class="btn btn-secondary">Déconnexion</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="dashboard-header">
+                <button id="backBtn" class="btn btn-secondary">← Retour</button>
+            </div>
+
+            <!-- Tasks Table - Detailed View -->
+            <div class="card">
+                <h3>Toutes les Tâches du Stream</h3>
+                <div class="table-responsive">
+                    <table class="tasks-table" id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Description</th>
+                                <th>Date de début</th>
+                                <th>Date de fin</th>
+                                <th>Statut</th>
+                                <th>Dernière mise à jour</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- Added note about clicking tasks to see history -->
+                <p style="font-size: 12px; color: #999; margin-top: 15px; font-style: italic;">
+                    💡 Cliquez sur une tâche pour voir son historique complet
+                </p>
+            </div>
+
+            <!-- Updates History Section -->
+            <div id="updatesContainer"></div>
+        </div>
+    </div>
+
+    <!-- Task History Modal -->
+    <!-- Repurposed edit task modal for showing history -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-task-close">&times;</span>
+            <h3>Historique de la Tâche</h3>
+            <p>Chargement...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Removed reference to stream-tasks.js - all logic is in app.js -->
+    <!-- Application JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
