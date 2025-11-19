@@ -25,6 +25,15 @@
                 <button id="addStreamBtn" class="btn btn-primary">+ Nouveau Stream</button>
             </div>
 
+            <!-- Date filter section -->
+             <div class="filter-section">
+                <label for="dateFilter" class="filter-label">Filtrer par date:</label>
+                <div class="filter-controls">
+                    <input type="date" id="dateFilter" class="date-filter-input">
+                    <button id="clearDateFilter" class="btn btn-secondary btn-sm">Réinitialiser</button>
+                </div>
+            </div>
+
             <!-- Stream Form -->
             <div id="streamForm" class="card" style="display: none;">
                 <h3>Nouveau Stream</h3>
@@ -176,6 +185,29 @@
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                     <button type="button" class="btn btn-secondary" onclick="closeEditTaskModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Stream Modal -->
+    <div id="editStreamModal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-stream-close">&times;</span>
+            <h3>Modifier le Stream</h3>
+            <form id="editStreamForm">
+                <input type="hidden" id="editStreamId">
+                <div class="form-group">
+                    <label for="editStreamTitle">Titre du Stream</label>
+                    <input type="text" id="editStreamTitle" placeholder="Entrez le titre du stream" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStreamDescription">Description</label>
+                    <textarea id="editStreamDescription" rows="3" placeholder="Décrivez votre stream" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditStreamModal()">Annuler</button>
                 </div>
             </form>
         </div>
