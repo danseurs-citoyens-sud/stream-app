@@ -558,6 +558,8 @@ function initializeApp() {
         }
       })
     }
+
+    attachEditStreamFormListener()
   })
 }
 
@@ -708,11 +710,15 @@ function createStreamCard(id, stream, isOwner) {
 
   const date = stream.createdAt ? new Date(stream.createdAt).toLocaleDateString("fr-FR") : "Aujourd'hui"
 
+  // Encode title and description to safely pass through onclick attribute
+  const encodedTitle = encodeURIComponent(stream.title)
+  const encodedDescription = encodeURIComponent(stream.description)
+
   row.innerHTML = `
     <td><strong>${stream.title}</strong></td>
     <td>${stream.description}</td>
     <td>${stream.userDepartment}</td>
-    <td>${date}</td>
+    <td class="stream-date" data-date="${stream.createdAt ? new Date(stream.createdAt).toISOString().split('T')[0] : ''}">${date}</td>
     <td><span class="updates-count">${stream.updatesCount || 0}</span></td>
     <td><span class="updates-count">${stream.tasksCount || 0}</span></td>
     <td>
@@ -720,13 +726,14 @@ function createStreamCard(id, stream, isOwner) {
         ${
           isOwner
             ? `
-          <button class="stream-action-btn" onclick="openUpdateModal('${id}')">📝 Mise à jour</button>
-          <button class="stream-action-btn" onclick="viewStreamTasks('${id}')">✅ Tâches</button>
-          <button class="stream-action-btn delete" onclick="confirmDeleteStream('${id}')">Supprimer</button>
+          <button class="stream-action-btn edit" onclick="window.openEditStreamModal('${id}', '${encodedTitle}', '${encodedDescription}')" title="Modifier le stream">✏️ Modifier</button>
+          <button class="stream-action-btn" onclick="window.openUpdateModal('${id}')">📝 Mise à jour</button>
+          <button class="stream-action-btn" onclick="window.viewStreamTasks('${id}')">✅ Tâches</button>
+          <button class="stream-action-btn delete" onclick="window.confirmDeleteStream('${id}')">Supprimer</button>
         `
             : ""
         }
-        <button class="stream-action-btn" onclick="viewUpdates('${id}')">📋 Voir</button>
+        <button class="stream-action-btn" onclick="window.viewUpdates('${id}')">📋 Voir</button>
       </div>
     </td>
   `
@@ -1817,3 +1824,145 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 })
+
+let editStreamFormReady = false
+
+function attachEditStreamFormListener() {
+  const editStreamForm = document.getElementById("editStreamForm")
+  if (!editStreamForm || editStreamFormReady) {
+    if (!editStreamForm) {
+      console.log("[v0] editStreamForm not found, retrying in 500ms...")
+      setTimeout(attachEditStreamFormListener, 500)
+    }
+    return
+  }
+
+  editStreamFormReady = true
+  console.log("[v0] editStreamForm listener attached successfully")
+
+  editStreamForm.addEventListener("submit", async (e) => {
+    e.preventDefault()
+    console.log("[v0] Edit stream form submitted")
+
+    const streamId = document.getElementById("editStreamId").value
+    const title = document.getElementById("editStreamTitle").value
+    const description = document.getElementById("editStreamDescription").value
+
+    if (!streamId || !title) {
+      alert("Erreur: Données manquantes")
+      return
+    }
+
+    try {
+      console.log("[v0] Updating stream:", streamId)
+      await db.collection("streams").doc(streamId).update({
+        title: title,
+        description: description,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+
+      console.log("[v0] Stream updated successfully")
+      alert("Stream modifié avec succès !")
+      window.closeEditStreamModal()
+      loadEmployeeStreams()
+    } catch (error) {
+      console.error("[v0] Error updating stream:", error)
+      alert("Erreur lors de la modification: " + error.message)
+    }
+  })
+}
+
+window.openEditStreamModal = (streamId, encodedTitle, encodedDescription) => {
+  console.log("[v0] openEditStreamModal called with:", streamId)
+
+  if (!streamId) {
+    console.error("[v0] No streamId provided to openEditStreamModal")
+    alert("Erreur: Stream ID manquant")
+    return
+  }
+
+  currentStreamId = streamId
+
+  const editStreamId = document.getElementById("editStreamId")
+  const editStreamTitle = document.getElementById("editStreamTitle")
+  const editStreamDescription = document.getElementById("editStreamDescription")
+  const editModal = document.getElementById("editStreamModal")
+
+  if (!editStreamId || !editStreamTitle || !editStreamDescription || !editModal) {
+    console.error("[v0] One or more form elements not found")
+    alert("Erreur: Éléments du formulaire non trouvés")
+    return
+  }
+
+  try {
+    // Decode the title and description to handle special characters
+    editStreamId.value = streamId
+    editStreamTitle.value = decodeURIComponent(encodedTitle)
+    editStreamDescription.value = decodeURIComponent(encodedDescription)
+
+    editModal.classList.add("active")
+    console.log("[v0] Edit modal opened successfully")
+  } catch (error) {
+    console.error("[v0] Error opening edit modal:", error)
+    alert("Erreur lors de l'ouverture du formulaire")
+  }
+}
+
+window.closeEditStreamModal = () => {
+  console.log("[v0] closeEditStreamModal called")
+
+  const editModal = document.getElementById("editStreamModal")
+  const editStreamForm = document.getElementById("editStreamForm")
+
+  if (editModal) {
+    editModal.classList.remove("active")
+  }
+
+  if (editStreamForm) {
+    editStreamForm.reset()
+  }
+}
+
+const editStreamCloseBtn = document.querySelector("#editStreamModal .edit-stream-close")
+if (editStreamCloseBtn) {
+  editStreamCloseBtn.addEventListener("click", (e) => {
+    console.log("[v0] Edit stream close button clicked")
+    e.preventDefault()
+    window.closeEditStreamModal()
+  })
+} else {
+  console.warn("[v0] Edit stream close button not found")
+}
+
+const dateFilter = document.getElementById("dateFilter")
+const clearDateFilter = document.getElementById("clearDateFilter")
+
+if (dateFilter) {
+  dateFilter.addEventListener("change", () => {
+    filterStreamsByDate()
+  })
+}
+
+if (clearDateFilter) {
+  clearDateFilter.addEventListener("click", () => {
+    dateFilter.value = ""
+    filterStreamsByDate()
+  })
+}
+
+function filterStreamsByDate() {
+  const selectedDate = dateFilter.value
+  const rows = document.querySelectorAll("#streamsList tr")
+
+  rows.forEach((row) => {
+    const dateCell = row.querySelector(".stream-date")
+    if (!dateCell) return
+
+    if (!selectedDate) {
+      row.style.display = ""
+    } else {
+      const rowDate = dateCell.getAttribute("data-date")
+      row.style.display = rowDate === selectedDate ? "" : "none"
+    }
+  })
+}
